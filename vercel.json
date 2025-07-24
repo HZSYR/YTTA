@@ -45,7 +45,6 @@
       ]
     }
   ],
-  "regions": ["sin1", "hkg1", "syd1"],
   "github": {
     "silent": true
   }
