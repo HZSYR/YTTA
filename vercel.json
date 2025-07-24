@@ -22,12 +22,6 @@
     }
   ],
 
-  "headers": [
-    {
-      "source": "/(.*)",
-      
-    }
-  ],
   "github": {
     "silent": true
   }
